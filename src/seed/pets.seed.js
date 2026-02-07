@@ -2,26 +2,29 @@ const mongoose = require("mongoose");
 const Pet = require("../models/Pet");
 const { env } = require("../config/env");
 
-const pets = [
-  // DOGS - 4
+const PETS_API_KEY = process.env.PETS_API_KEY;
+
+const dogs = [
   {
     name: "Max",
     species: "dog",
     breed: "Golden Retriever",
-    age: 3,
+    age: 0.6,
     description:
       "Golden Retriever with a friendly and energetic personality. Max loves playing fetch and swimming. Great with kids and other pets.",
-    imageUrl: "https://images.unsplash.com/photo-1507146426996-ef05306b995a",
+    imageUrl:
+      "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=compress&cs=tinysrgb&w=1200",
     status: "available",
   },
   {
     name: "Luna",
     species: "dog",
     breed: "Labrador Retriever",
-    age: 2,
+    age: 0.4,
     description:
       "Sweet Labrador puppy with boundless energy. Luna is intelligent, obedient, and loves outdoor adventures. Perfect family companion.",
-    imageUrl: "https://images.unsplash.com/photo-1611003228941-98852ba62227",
+    imageUrl:
+      "https://images.unsplash.com/photo-1611003228941-98852ba62227?auto=compress&cs=tinysrgb&w=1200",
     status: "available",
   },
   {
@@ -31,7 +34,8 @@ const pets = [
     age: 5,
     description:
       "Intelligent and loyal German Shepherd. Charlie is well-trained, protective, and great for active families. Excellent watchdog.",
-    imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b",
+    imageUrl:
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=compress&cs=tinysrgb&w=1200",
     status: "available",
   },
   {
@@ -44,8 +48,9 @@ const pets = [
     imageUrl: "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9",
     status: "available",
   },
+];
 
-  // CATS - 4
+const cats = [
   {
     name: "Whiskers",
     species: "cat",
@@ -73,7 +78,7 @@ const pets = [
     age: 4,
     description:
       "Elegant Siamese cat with striking blue eyes. Mittens is vocal, social, and loves interacting with humans. Very affectionate.",
-    imageUrl: "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8",
+    imageUrl: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131",
     status: "available",
   },
   {
@@ -86,8 +91,9 @@ const pets = [
     imageUrl: "https://images.unsplash.com/photo-1574144611937-0df059b5ef3e",
     status: "available",
   },
+];
 
-  // OTHERS - 4
+const otherPets = [
   {
     name: "Hoppy",
     species: "other",
@@ -96,7 +102,7 @@ const pets = [
     description:
       "Fluffy Angora rabbit with soft white fur. Hoppy is gentle, enjoys hopping around, and loves fresh vegetables. Great starter pet.",
     imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmeiAjKKM3mv94Eqw2QMe_NpWadXAm7DKISA&s",
+      "https://media.istockphoto.com/id/610570778/photo/white-angora-rabbit-sitting-outdoors-in-the-wild-front-view.jpg?s=612x612&w=0&k=20&c=LTHbEgNoSGXfHSzYkspA6byheQi0BR0A17sgT7mIbds=",
     status: "available",
   },
   {
@@ -107,7 +113,7 @@ const pets = [
     description:
       "Intelligent and colorful African Grey Parrot. Polly can mimic words, learn tricks, and provide years of entertainment and companionship.",
     imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJ4kDD4o88G9nJHWtdyhqQ5q9718oujZ8mIg&s",
+      "https://media.istockphoto.com/id/1231125384/photo/congo-african-grey-parrot-portrait-isolated.jpg?s=612x612&w=0&k=20&c=5ZYqca0UYvt0yL4lvLOQUXIeElMsbFuZsW_5yo4XqbQ=",
     status: "available",
   },
   {
@@ -118,7 +124,7 @@ const pets = [
     description:
       "Adorable golden Syrian hamster full of personality. Squeaky loves running on wheels and exploring. Perfect for apartment living.",
     imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzYN_RlxqMOEUJPCjvHFgtYZhIhcnWJ5A1mg&s",
+      "https://images.pexels.com/photos/28749492/pexels-photo-28749492/free-photo-of-adorable-syrian-hamster-on-dark-background.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     status: "available",
   },
   {
@@ -129,14 +135,72 @@ const pets = [
     description:
       "Friendly and social Guinea Pig with brown and white patches. Nibbles makes cute squeaking sounds and loves interacting with humans.",
     imageUrl:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWVsHNpO8dI4as4qqtxqd7HZsfC4wlRkWwBA&s",
+      "https://images.unsplash.com/photo-1512087499053-023f060e2cea?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Z3VpbmVhJTIwcGlnfGVufDB8fDB8fHww",
     status: "available",
   },
 ];
 
+const dogApiBase = "https://api.thedogapi.com/v1";
+const catApiBase = "https://api.thecatapi.com/v1";
+
+const fetchImageForBreed = async (apiBase, breedName, fallbackUrl) => {
+  if (!PETS_API_KEY) {
+    return fallbackUrl;
+  }
+
+  try {
+    const searchRes = await fetch(
+      `${apiBase}/breeds/search?q=${encodeURIComponent(breedName)}`,
+      {
+        headers: { "x-api-key": PETS_API_KEY },
+      }
+    );
+
+    if (!searchRes.ok) {
+      throw new Error(`Breed search ${searchRes.status}`);
+    }
+
+    const breeds = await searchRes.json();
+    const breedId = breeds?.[0]?.id;
+    if (!breedId) return fallbackUrl;
+
+    const imageRes = await fetch(
+      `${apiBase}/images/search?breed_id=${breedId}&limit=1`,
+      {
+        headers: { "x-api-key": PETS_API_KEY },
+      }
+    );
+
+    if (!imageRes.ok) {
+      throw new Error(`Image search ${imageRes.status}`);
+    }
+
+    const images = await imageRes.json();
+    return images?.[0]?.url || fallbackUrl;
+  } catch (error) {
+    console.error(`API fetch failed for ${breedName}:`, error.message);
+    return fallbackUrl;
+  }
+};
+
 const run = async () => {
   await mongoose.connect(env.MONGO_URI, { dbName: env.MONGO_DB_NAME });
   await Pet.deleteMany({});
+  const dogsWithImages = await Promise.all(
+    dogs.map(async (pet) => ({
+      ...pet,
+      imageUrl: await fetchImageForBreed(dogApiBase, pet.breed, pet.imageUrl),
+    }))
+  );
+
+  const catsWithImages = await Promise.all(
+    cats.map(async (pet) => ({
+      ...pet,
+      imageUrl: await fetchImageForBreed(catApiBase, pet.breed, pet.imageUrl),
+    }))
+  );
+
+  const pets = [...dogsWithImages, ...catsWithImages, ...otherPets];
   await Pet.insertMany(pets);
   await mongoose.disconnect();
   console.log("Seed complete");
