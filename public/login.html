@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Pet Adoption System</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">Pet Adoption</div>
+      <nav class="navbar-menu">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="register.html" class="nav-link">Register</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container form-page">
+    <div class="form-container">
+      <h2>Login to Your Account</h2>
+      <p class="subtitle">Sign in to adopt a pet.</p>
+
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input id="email" type="email" placeholder="your@email.com" required class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="********" required class="form-input">
+        </div>
+
+        <button type="submit" class="btn-primary btn-block">Sign In</button>
+
+        <div class="form-divider">
+          <span>Don't have an account?</span>
+        </div>
+
+        <a href="register.html" class="btn-secondary btn-block">Create Account</a>
+      </form>
+
+      <div id="loginMessage" class="message"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Pet Adoption System.</p>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+</html>
