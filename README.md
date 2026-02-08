@@ -1,23 +1,151 @@
 # Pet Adoption System
 
-## Setup
-1. Install dependencies
-2. Create `.env` from `.env.example`
-3. Run seed: `npm run seed`
-4. Start server: `npm start`
+Pet Adoption System is a full-stack web application that helps users browse pets available for adoption, adopt pets, and manage adoption data. The system includes authentication, role-based access (admin/user), pet management, and a clean user interface.
 
-## API
+Admins can create, update, and delete pets. Regular users can view pets and adopt them.
+
+## Features
+- User registration and login
+- JWT authentication
+- Role-based access (Admin / User)
+- Pet listing and filtering
+- Adopt pet functionality
+- Admin CRUD operations
+- Secure password hashing
+- Clean UI design
+- Google Maps location section
+- Partners section
+
+## Technologies
+
+**Backend:**
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT (JSON Web Token)
+- bcrypt
+- dotenv
+- express-validator
+
+**Frontend:**
+- HTML
+- CSS
+- JavaScript
+- Axios (if used)
+
+**Other Tools:**
+- Git & GitHub
+- Postman (API testing)
+
+## Setup
+
+1. Clone repository
+   ```bash
+   git clone <repository_url>
+   cd pet-adoption-system
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Environment variables
+
+   Create a `.env` file in the root directory with:
+   ```
+   PORT=4000
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   ```
+
+4. Start the server
+   ```bash
+   npm start
+   ```
+
+## API Documentation
 
 ### Auth
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 
-### Users
-- `GET /api/users/me` (protected)
+### Users (Protected)
+- `GET /api/users/profile`
+- `PUT /api/users/profile`
 
 ### Pets
+**Admin only:**
+- `POST /api/pets`
+- `PUT /api/pets/:id`
+- `DELETE /api/pets/:id`
+
+**Public / User:**
 - `GET /api/pets`
 - `GET /api/pets/:id`
-- `POST /api/pets` (protected)
-- `PUT /api/pets/:id` (protected)
-- `DELETE /api/pets/:id` (protected)
+- `PUT /api/pets/:id/adopt`
+
+## Validation & Error Handling
+
+- Input validation is enforced using middleware to ensure request bodies and parameters meet required formats.
+- Standard HTTP status codes are used to communicate errors:
+  - 400 Bad Request
+  - 401 Unauthorized
+  - 403 Forbidden
+  - 404 Not Found
+  - 500 Server Error
+- A global error-handling middleware provides consistent error responses across the API.
+
+## Deployment
+
+This project can be deployed using platforms such as Render, Railway, or similar services. Environment variables must be configured in the deployment platform.
+
+## Screenshots
+
+### 1. Home Page
+_Insert screenshot here_
+
+### 2. Pets Listing Page
+_Insert screenshot here_
+
+### 3. Pet Card Component
+_Insert screenshot here_
+
+### 4. Adopt Button (Before Adoption)
+_Insert screenshot here_
+
+### 5. Adopt Button (After Adoption)
+_Insert screenshot here_
+
+### 6. Login Page
+_Insert screenshot here_
+
+### 7. Register Page
+_Insert screenshot here_
+
+### 8. User Profile Page
+_Insert screenshot here_
+
+### 9. Admin Dashboard
+_Insert screenshot here_
+
+### 10. Create Pet (Admin)
+_Insert screenshot here_
+
+### 11. Edit Pet (Admin)
+_Insert screenshot here_
+
+### 12. Delete Pet Confirmation
+_Insert screenshot here_
+
+### 13. Google Maps Location Section
+_Insert screenshot here_
+
+### 14. Partners Section
+_Insert screenshot here_
+
+### 15. MongoDB Database (Pets Collection)
+_Insert screenshot here_
+
+This project was developed for educational purposes and demonstrates full-stack web development concepts including authentication, REST APIs, database design, and role-based access control.
