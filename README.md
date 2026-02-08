@@ -104,48 +104,46 @@ This project can be deployed using platforms such as Render, Railway, or similar
 ## Screenshots
 
 ### 1. Home Page
-_Insert screenshot here_
+![alt text](<Снимок экрана 2026-02-08 223325.png>)
 
-### 2. Pets Listing Page
-_Insert screenshot here_
 
-### 3. Pet Card Component
-_Insert screenshot here_
+### 2. Pet Card Component
+![alt text](<Снимок экрана 2026-02-08 223537.png>)
 
-### 4. Adopt Button (Before Adoption)
-_Insert screenshot here_
+### 3. Adopt Button (Before Adoption)
+![alt text](<Снимок экрана 2026-02-08 223615.png>)
 
-### 5. Adopt Button (After Adoption)
-_Insert screenshot here_
+### 4. Login Page
+![alt text](<Снимок экрана 2026-02-08 223803.png>)
 
-### 6. Login Page
-_Insert screenshot here_
+### 5. Register Page
+![alt text](<Снимок экрана 2026-02-08 223840.png>)
 
-### 7. Register Page
-_Insert screenshot here_
+### 6. User Profile Page
+![alt text](<Снимок экрана 2026-02-08 223949.png>)
 
-### 8. User Profile Page
-_Insert screenshot here_
+### 7. Admin Dashboard
+![alt text](<Снимок экрана 2026-02-08 223254.png>)
 
-### 9. Admin Dashboard
-_Insert screenshot here_
+### 8. Create Pet (Admin)
+![alt text](<Снимок экрана 2026-02-08 224026.png>)
+![alt text](<Снимок экрана 2026-02-08 224735.png>)
 
-### 10. Create Pet (Admin)
-_Insert screenshot here_
 
-### 11. Edit Pet (Admin)
-_Insert screenshot here_
+### 9. Google Maps Location Section
+![alt text](<Снимок экрана 2026-02-08 224110.png>)
 
-### 12. Delete Pet Confirmation
-_Insert screenshot here_
+### 10. MongoDB Database (User Collection)
+![alt text](<Снимок экрана 2026-02-08 224225.png>)
 
-### 13. Google Maps Location Section
-_Insert screenshot here_
+### 11. MongoDB Database (Pets Collection)
+![alt text](<Снимок экрана 2026-02-08 224140.png>)
 
-### 14. Partners Section
-_Insert screenshot here_
+### 12. Register User
+![alt text](<Снимок экрана 2026-02-08 225951.png>)
 
-### 15. MongoDB Database (Pets Collection)
-_Insert screenshot here_
+### 13. Login User
+![alt text](<Снимок экрана 2026-02-08 230551.png>)
+
 
 This project was developed for educational purposes and demonstrates full-stack web development concepts including authentication, REST APIs, database design, and role-based access control.
