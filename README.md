@@ -104,6 +104,8 @@ This project can be deployed using platforms such as Render, Railway, or similar
 ## Screenshots
 
 ### 1. Home Page
+<img width="1677" height="951" alt="image" src="https://github.com/user-attachments/assets/8c287862-2ec9-40f5-82cd-7fbc5cb086b9" />
+
 ![alt text](<Снимок экрана 2026-02-08 223325.png>)
 
 
