@@ -1,54 +1,79 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Profile - Pet Adoption System</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile - Pet Adoption System</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="navbar">
-    <div class="navbar-inner">
-      <div class="navbar-brand">Pet Adoption</div>
-      <nav class="navbar-menu" id="navMenu">
-        <a href="index.html" class="nav-link">Home</a>
-        <span id="authNav"></span>
-        <button id="logoutBtn" class="btn-logout" style="display:none;">Logout</button>
+    <div class="container nav-inner">
+      <div class="brand">Pet Adoption</div>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <span id="authLinks"></span>
+        <button id="logoutBtn" class="btn btn-accent">Logout</button>
       </nav>
     </div>
   </header>
 
-  <main class="container">
-    <div class="profile-container">
-      <h1>My Profile</h1>
-
-      <section class="profile-section">
-        <h2>Account Information</h2>
-        <div class="profile-card">
-          <div class="form-group">
-            <label for="profileName">Name</label>
-            <input id="profileName" type="text" class="form-input" required>
-          </div>
-
-          <div class="form-group">
-            <label for="profileEmail">Email</label>
-            <input id="profileEmail" type="email" class="form-input" required>
-          </div>
-
-          <div class="form-group">
-            <label for="profileNewPassword">New Password (optional)</label>
-            <input id="profileNewPassword" type="password" class="form-input" placeholder="********" minlength="6">
-          </div>
-
-          <button id="updateProfileBtn" class="btn-primary">Update Profile</button>
-          <div id="profileMessage" class="message"></div>
-        </div>
-      </section>
+  <main class="container section">
+    <div class="card profile-card">
+      <h2>My Profile</h2>
+      <div class="profile-row">
+        <span>Name</span>
+        <span id="profileName" class="value"></span>
+      </div>
+      <div class="profile-row">
+        <span>Email</span>
+        <span id="profileEmail" class="value"></span>
+      </div>
+      <div class="profile-row">
+        <span>Role</span>
+        <span id="profileRole" class="value"></span>
+      </div>
+      <div id="profileMessage" class="message"></div>
     </div>
   </main>
 
   <footer class="footer">
-    <p>&copy; 2025 Pet Adoption System.</p>
+    <div class="container footer-content">
+      <div class="footer-text">
+        <p>
+          Pet Adoption System provides information about pet adoption opportunities in the Republic of Kazakhstan.
+          <br />
+          All information on this platform is provided for informational purposes only.
+        </p>
+        <p>
+          Adoption availability depends on shelters, volunteers, and partner organizations.
+          <br />
+          The platform does not guarantee availability, condition, or health status of animals.
+        </p>
+        <p>
+          All adoption decisions are made directly between users and shelters.
+          <br />
+          Local laws and regulations of the Republic of Kazakhstan apply.
+        </p>
+      </div>
+      <div class="partners" aria-label="Our Partnerships">
+        <h3>Our Partnerships</h3>
+        <div class="partner-logos">
+          <img
+            src="https://lms.astanait.edu.kz/pluginfile.php/1/core_admin/logo/0x200/1759344969/Astana%20IT%20University%20%284%29.png"
+            alt="Astana IT University"
+          />
+          <img
+            src="https://www.gov.kz/uploads/2023/2/3/8545ecac24959d0743986120a57e8fee_original.1402108.png"
+            alt="Akimat of the city of Astana"
+          />
+          <img
+            src="https://framerusercontent.com/images/tXX47nIDpfWdyumwRLTnBucnlw.png?scale-down-to=512"
+            alt="Astana Hub"
+          />
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script src="main.js"></script>

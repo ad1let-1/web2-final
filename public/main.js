@@ -1,17 +1,20 @@
-const API_BASE = `${window.location.origin}/api`;
+﻿const API_BASE = `${window.location.origin}/api/resource`;
+const AUTH_BASE = `${window.location.origin}/api/auth`;
+const USER_BASE = `${window.location.origin}/api/users`;
 const TOKEN_KEY = "pet_adoption_token";
 
-let allPets = [];
-let filteredPets = [];
-let currentFilter = "all";
-let currentSearch = "";
-let currentPetForAdoption = null;
+const petsGrid = document.getElementById("petsGrid");
+const emptyState = document.getElementById("emptyState");
+const loginPrompt = document.getElementById("loginPrompt");
 
-const speciesMap = {
-  dog: "dog",
-  cat: "cat",
-  other: "other"
-};
+let currentUser = null;
+let allPets = [];
+
+function setMessage(el, text, type) {
+  if (!el) return;
+  el.textContent = text;
+  el.className = `message ${type || ""}`;
+}
 
 function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -30,328 +33,387 @@ function authHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function setMessage(el, text, ok) {
-  if (!el) return;
-  el.textContent = text;
-  el.className = ok ? "message success" : "message error";
-}
+async function fetchProfile() {
+  const token = getToken();
+  if (!token) return null;
 
-function mapSpeciesToCategory(species) {
-  return speciesMap[(species || "").toLowerCase()] || "other";
+  const res = await fetch(`${USER_BASE}/profile`, {
+    headers: authHeaders(),
+  });
+
+  if (!res.ok) {
+    clearToken();
+    return null;
+  }
+
+  const data = await res.json();
+  return data.user || null;
 }
 
 function initNav() {
-  const authNav = document.getElementById("authNav");
+  const authLinks = document.getElementById("authLinks");
   const logoutBtn = document.getElementById("logoutBtn");
   const token = getToken();
 
-  if (authNav) {
-    if (token) {
-      authNav.innerHTML = '<a href="profile.html" class="nav-link">Profile</a>';
-    } else {
-      authNav.innerHTML =
-        '<a href="login.html" class="nav-link">Login</a>' +
-        '<a href="register.html" class="nav-link">Register</a>';
-    }
+  if (authLinks) {
+    authLinks.innerHTML = token
+      ? '<a href="profile.html">Profile</a>'
+      : '<a href="login.html">Login</a> <a href="register.html">Register</a>';
   }
 
   if (logoutBtn) {
     logoutBtn.style.display = token ? "inline-block" : "none";
-    logoutBtn.onclick = () => {
+    logoutBtn.addEventListener("click", () => {
       clearToken();
       window.location.href = "index.html";
-    };
+    });
   }
+}
+
+function renderPets(pets) {
+  if (!petsGrid) return;
+
+  if (!pets.length) {
+    petsGrid.innerHTML = "";
+    emptyState.style.display = "block";
+    return;
+  }
+
+  emptyState.style.display = "none";
+  petsGrid.innerHTML = pets
+    .map((p) => {
+      const isUser = currentUser && currentUser.role === "user";
+      const isAdmin = currentUser && currentUser.role === "admin";
+      const showAdopt = isUser;
+      const adoptDisabled = p.status !== "available";
+      const adoptText = adoptDisabled ? "Adopted" : "Adopt";
+
+      return `
+        <div class="card pet-card" data-pet-id="${p._id}">
+          <img src="${p.imageUrl}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <div class="pet-meta">${p.species} • ${p.breed}</div>
+          <div class="pet-meta">Age: ${p.age}</div>
+          <span class="status">${p.status}</span>
+          <div class="card-actions">
+            ${showAdopt ? `<button class="btn btn-accent" data-adopt="${p._id}" ${adoptDisabled ? "disabled" : ""}>${adoptText}</button>` : ""}
+            ${isAdmin ? `<button class="btn btn-outline" data-edit="${p._id}">Edit</button>` : ""}
+            ${isAdmin ? `<button class="btn btn-danger" data-delete="${p._id}">Delete</button>` : ""}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
 }
 
 async function fetchPets() {
-  try {
-    const response = await fetch(`${API_BASE}/pets`);
-    const data = await response.json();
-    allPets = data.pets || [];
-    applyFilters();
-  } catch (error) {
-    const grid = document.getElementById("petsGrid");
-    if (grid) {
-      grid.innerHTML = '<div class="empty-state"><p>Failed to load pets.</p></div>';
+  const res = await fetch(API_BASE, { headers: authHeaders() });
+  if (res.status === 401) {
+    if (loginPrompt) {
+      setMessage(loginPrompt, "Please login to view pets.", "error");
     }
+    return [];
   }
+  if (!res.ok) {
+    if (loginPrompt) {
+      setMessage(loginPrompt, "Failed to load pets.", "error");
+    }
+    return [];
+  }
+  const data = await res.json();
+  return data.pets || [];
 }
 
-function applyFilters() {
-  filteredPets = allPets.filter((pet) => {
-    const categoryMatch =
-      currentFilter === "all" || mapSpeciesToCategory(pet.species) === currentFilter;
-    const searchMatch =
-      currentSearch === "" ||
-      (pet.name || "").toLowerCase().includes(currentSearch.toLowerCase()) ||
-      (pet.breed || "").toLowerCase().includes(currentSearch.toLowerCase());
-    return categoryMatch && searchMatch;
+function initFilters() {
+  const buttons = document.querySelectorAll("[data-filter]");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      buttons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const filter = btn.dataset.filter;
+      if (filter === "all") {
+        renderPets(allPets);
+      } else {
+        renderPets(allPets.filter((p) => p.species === filter));
+      }
+    });
   });
-
-  renderPets();
 }
 
-function renderPets() {
-  const grid = document.getElementById("petsGrid");
-  if (!grid) return;
-
-  if (filteredPets.length === 0) {
-    grid.innerHTML = '<div class="empty-state"><p>No pets found.</p></div>';
+async function adoptPet(id) {
+  if (!currentUser || currentUser.role !== "user") {
+    if (loginPrompt) {
+      setMessage(loginPrompt, "Login as a user to adopt.", "error");
+    }
     return;
   }
+  try {
+    const res = await fetch(`${API_BASE}/${id}/adopt`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+    });
 
-  grid.innerHTML = filteredPets
-    .map(
-      (pet) => `
-    <div class="pet-card ${pet.status === "adopted" ? "disabled" : ""}" data-id="${pet._id}">
-      <div class="pet-image-wrapper">
-        <img src="${pet.imageUrl}" alt="${pet.name}" class="pet-image">
-      </div>
-      <div class="pet-card-body">
-        <div class="pet-name">${pet.name}</div>
-        <div class="pet-type">${pet.species}</div>
-        <div class="pet-info-grid">
-          <div class="pet-info-item">
-            <strong>Breed</strong>
-            ${pet.breed}
-          </div>
-          <div class="pet-info-item">
-            <strong>Age</strong>
-            ${pet.age}
-          </div>
-        </div>
-        <div class="pet-description">${pet.description || ""}</div>
-        <span class="pet-status ${pet.status === "adopted" ? "adopted" : "available"}">${pet.status}</span>
-        <div class="pet-actions">
-          <button class="btn-view" ${pet.status === "adopted" ? "disabled" : ""}>View Details</button>
-        </div>
-      </div>
-    </div>
-  `
-    )
-    .join("");
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const idx = allPets.findIndex((p) => p._id === id);
+      if (idx !== -1) {
+        allPets[idx] = { ...allPets[idx], status: "adopted" };
+      }
 
-  grid.querySelectorAll(".pet-card").forEach((card) => {
-    card.addEventListener("click", () => openPetModal(card.dataset.id));
+      const card = petsGrid.querySelector(`[data-pet-id="${id}"]`);
+      if (card) {
+        const statusEl = card.querySelector(".status");
+        if (statusEl) statusEl.textContent = "adopted";
+        const adoptBtn = card.querySelector(`[data-adopt="${id}"]`);
+        if (adoptBtn) {
+          adoptBtn.textContent = "Adopted";
+          adoptBtn.disabled = true;
+        }
+      }
+
+      return;
+    }
+
+    alert(data.message || "Adopt failed.");
+  } catch (err) {
+    console.error(err);
+    alert("Network error. Please try again.");
+  }
+}
+
+function toggleAdminPanel() {
+  const panel = document.getElementById("adminPanel");
+  if (!panel) return;
+  if (currentUser && currentUser.role === "admin") {
+    panel.style.display = "block";
+  } else {
+    panel.style.display = "none";
+  }
+}
+
+function initCreateForm() {
+  const form = document.getElementById("createPetForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: document.getElementById("petName").value.trim(),
+      species: document.getElementById("petSpecies").value,
+      breed: document.getElementById("petBreed").value.trim(),
+      age: Number(document.getElementById("petAge").value),
+      imageUrl: document.getElementById("petImageUrl").value.trim(),
+      status: document.getElementById("petStatus").value,
+      description: document.getElementById("petDescription").value.trim(),
+    };
+
+    const res = await fetch(API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(payload),
+    });
+
+    const msg = document.getElementById("createMessage");
+    if (res.ok) {
+      setMessage(msg, "Pet created.", "success");
+      form.reset();
+      await loadPets();
+    } else {
+      const data = await res.json();
+      const text = data.message || "Create failed.";
+      setMessage(msg, text, "error");
+    }
   });
 }
 
-function openPetModal(petId) {
-  const pet = allPets.find((p) => p._id === petId);
+function openEdit(id) {
+  const pet = allPets.find((p) => p._id === id);
   if (!pet) return;
 
-  currentPetForAdoption = pet;
+  document.getElementById("editPetId").value = pet._id;
+  document.getElementById("editName").value = pet.name;
+  document.getElementById("editSpecies").value = pet.species;
+  document.getElementById("editBreed").value = pet.breed;
+  document.getElementById("editAge").value = pet.age;
+  document.getElementById("editImageUrl").value = pet.imageUrl;
+  document.getElementById("editStatus").value = pet.status;
+  document.getElementById("editDescription").value = pet.description || "";
 
-  document.getElementById("modalPetImage").src = pet.imageUrl;
-  document.getElementById("modalPetName").textContent = pet.name;
-  document.getElementById("modalPetType").textContent = pet.species;
-  document.getElementById("modalPetBreed").textContent = pet.breed;
-  document.getElementById("modalPetAge").textContent = String(pet.age);
-  document.getElementById("modalPetDescription").textContent = pet.description || "";
-  const badge = document.getElementById("statusBadge");
-  badge.textContent = pet.status;
-  badge.className = `status-badge ${pet.status === "adopted" ? "adopted" : ""}`;
-
-  const modal = document.getElementById("petModal");
-  modal.classList.add("active");
+  document.getElementById("editModal").classList.add("open");
 }
 
-function closePetModal() {
-  const modal = document.getElementById("petModal");
-  modal.classList.remove("active");
-  currentPetForAdoption = null;
+function closeEdit() {
+  document.getElementById("editModal").classList.remove("open");
+  const msg = document.getElementById("editMessage");
+  if (msg) msg.textContent = "";
 }
 
-async function adoptCurrentPet() {
-  if (!currentPetForAdoption) return;
-  if (!getToken()) {
-    window.location.href = "login.html";
-    return;
+function initEditForm() {
+  const form = document.getElementById("editPetForm");
+  const cancelBtn = document.getElementById("editCancel");
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", closeEdit);
   }
 
-  const response = await fetch(`${API_BASE}/pets/${currentPetForAdoption._id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders()
-    },
-    body: JSON.stringify({ status: "adopted" })
+  if (!form) return;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("editPetId").value;
+    const payload = {
+      name: document.getElementById("editName").value.trim(),
+      species: document.getElementById("editSpecies").value,
+      breed: document.getElementById("editBreed").value.trim(),
+      age: Number(document.getElementById("editAge").value),
+      imageUrl: document.getElementById("editImageUrl").value.trim(),
+      status: document.getElementById("editStatus").value,
+      description: document.getElementById("editDescription").value.trim(),
+    };
+
+    const res = await fetch(`${API_BASE}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(payload),
+    });
+
+    const msg = document.getElementById("editMessage");
+    if (res.ok) {
+      setMessage(msg, "Pet updated.", "success");
+      await loadPets();
+      closeEdit();
+    } else {
+      const data = await res.json();
+      setMessage(msg, data.message || "Update failed.", "error");
+    }
+  });
+}
+
+async function deletePet(id) {
+  if (!currentUser || currentUser.role !== "admin") return;
+  const res = await fetch(`${API_BASE}/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
   });
 
-  if (response.ok) {
-    closePetModal();
-    await fetchPets();
-  } else {
-    const msg = document.getElementById("adoptMessage");
-    setMessage(msg, "Failed to adopt. Try again.", false);
+  if (res.ok) {
+    await loadPets();
   }
 }
 
-async function handleLogin() {
+async function loadPets() {
+  allPets = await fetchPets();
+  renderPets(allPets);
+}
+
+function initLogin() {
   const form = document.getElementById("loginForm");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
     const msg = document.getElementById("loginMessage");
 
-    if (response.ok && data.token) {
+    const res = await fetch(`${AUTH_BASE}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.token) {
       setToken(data.token);
       window.location.href = "index.html";
     } else {
-      setMessage(msg, data.message || "Login failed.", false);
+      setMessage(msg, data.message || "Login failed.", "error");
     }
   });
 }
 
-async function handleRegister() {
+function initRegister() {
   const form = document.getElementById("registerForm");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const confirmPassword = document.getElementById("confirmPassword").value.trim();
-
+    const name = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const password = document.getElementById("registerPassword").value.trim();
+    const confirm = document.getElementById("registerConfirm").value.trim();
     const msg = document.getElementById("registerMessage");
 
-    if (password !== confirmPassword) {
-      setMessage(msg, "Passwords do not match.", false);
+    if (password !== confirm) {
+      setMessage(msg, "Passwords do not match.", "error");
       return;
     }
 
-    const response = await fetch(`${API_BASE}/auth/register`, {
+    const res = await fetch(`${AUTH_BASE}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, password }),
     });
+    const data = await res.json();
 
-    const data = await response.json();
-
-    if (response.ok && data.token) {
+    if (res.ok && data.token) {
       setToken(data.token);
       window.location.href = "index.html";
     } else {
-      setMessage(msg, data.message || "Registration failed.", false);
+      setMessage(msg, data.message || "Registration failed.", "error");
     }
   });
 }
 
-async function loadProfile() {
-  const profileName = document.getElementById("profileName");
-  const profileEmail = document.getElementById("profileEmail");
-  const updateBtn = document.getElementById("updateProfileBtn");
+async function initProfile() {
+  const nameEl = document.getElementById("profileName");
+  const emailEl = document.getElementById("profileEmail");
+  const roleEl = document.getElementById("profileRole");
   const msg = document.getElementById("profileMessage");
+  if (!nameEl || !emailEl || !roleEl) return;
 
-  if (!profileName || !profileEmail || !updateBtn) return;
-  if (!getToken()) {
-    window.location.href = "login.html";
+  const user = await fetchProfile();
+  if (!user) {
+    setMessage(msg, "Please login first.", "error");
     return;
   }
 
-  const meResponse = await fetch(`${API_BASE}/users/me`, {
-    headers: authHeaders()
-  });
-
-  if (!meResponse.ok) {
-    clearToken();
-    window.location.href = "login.html";
-    return;
-  }
-
-  const meData = await meResponse.json();
-  profileName.value = meData.user.name || "";
-  profileEmail.value = meData.user.email || "";
-
-  updateBtn.addEventListener("click", async () => {
-    const payload = {
-      name: profileName.value.trim(),
-      email: profileEmail.value.trim()
-    };
-    const newPassword = document.getElementById("profileNewPassword").value.trim();
-    if (newPassword) payload.password = newPassword;
-
-    const response = await fetch(`${API_BASE}/users/me`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...authHeaders()
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      setMessage(msg, "Profile updated.", true);
-    } else {
-      setMessage(msg, data.message || "Update failed.", false);
-    }
-  });
+  nameEl.textContent = user.name || "";
+  emailEl.textContent = user.email || "";
+  roleEl.textContent = user.role || "user";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initNav();
+  initLogin();
+  initRegister();
+  initEditForm();
 
-  const modal = document.getElementById("petModal");
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target.id === "petModal") closePetModal();
-    });
-  }
+  currentUser = await fetchProfile();
+  toggleAdminPanel();
 
-  const modalClose = document.getElementById("modalCloseBtn");
-  if (modalClose) modalClose.addEventListener("click", closePetModal);
-
-  const adoptBtn = document.getElementById("adoptBtn");
-  if (adoptBtn) adoptBtn.addEventListener("click", adoptCurrentPet);
-
-  if (document.getElementById("petsGrid")) {
-    document.querySelectorAll(".category-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        document.querySelectorAll(".category-btn").forEach((b) => b.classList.remove("active"));
-        e.target.classList.add("active");
-        currentFilter = e.target.dataset.category;
-        currentSearch = document.getElementById("searchInput").value;
-        applyFilters();
-      });
-    });
-
-    document.getElementById("searchInput").addEventListener("input", (e) => {
-      currentSearch = e.target.value;
-      applyFilters();
-    });
-
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      document.getElementById("searchInput").value = "";
-      currentSearch = "";
-      applyFilters();
-    });
-
-    setInterval(() => {
-      const heroImg = document.getElementById("heroImg");
-      if (filteredPets.length > 0 && heroImg) {
-        const randomPet = filteredPets[Math.floor(Math.random() * filteredPets.length)];
-        heroImg.src = randomPet.imageUrl;
+  if (petsGrid) {
+    petsGrid.addEventListener("click", (event) => {
+      const adoptBtn = event.target.closest("[data-adopt]");
+      if (adoptBtn) {
+        adoptPet(adoptBtn.dataset.adopt);
+        return;
       }
-    }, 5000);
 
-    fetchPets();
+      const editBtn = event.target.closest("[data-edit]");
+      if (editBtn) {
+        openEdit(editBtn.dataset.edit);
+        return;
+      }
+
+      const deleteBtn = event.target.closest("[data-delete]");
+      if (deleteBtn) {
+        deletePet(deleteBtn.dataset.delete);
+      }
+    });
+    initFilters();
+    initCreateForm();
+    await loadPets();
   }
 
-  handleLogin();
-  handleRegister();
-  loadProfile();
+  initProfile();
 });

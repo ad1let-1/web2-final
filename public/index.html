@@ -1,95 +1,203 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pet Adoption System</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="navbar">
-    <div class="navbar-inner">
-      <div class="navbar-brand">Pet Adoption</div>
-      <nav class="navbar-menu" id="navMenu">
-        <a href="index.html" class="nav-link">Home</a>
-        <span id="authNav"></span>
-        <button id="logoutBtn" class="btn-logout" style="display:none;">Logout</button>
+    <div class="container nav-inner">
+      <a href="/" class="logo">
+        <img src="/images/logo.png" alt="Pet Adoption Logo" />
+        <span class="logo-text">Pet Adoption</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <span id="authLinks"></span>
+        <button id="logoutBtn" class="btn btn-accent">Logout</button>
       </nav>
     </div>
   </header>
 
   <main>
     <section class="hero">
-      <div class="hero-image">
-        <img id="heroImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Crect fill='%23ff9a56' width='800' height='400'/%3E%3C/svg%3E" alt="Pet hero banner" class="hero-img">
-      </div>
-      <div class="hero-content">
-        <h1 class="hero-title">Find Your New Best Friend</h1>
-        <p class="hero-subtitle">Adopt a loving pet and give them a forever home.</p>
-
-        <div class="category-filters">
-          <button class="category-btn active" data-category="all">All Pets</button>
-          <button class="category-btn" data-category="dog">Dogs</button>
-          <button class="category-btn" data-category="cat">Cats</button>
-          <button class="category-btn" data-category="other">Others</button>
+      <div class="container hero-grid">
+        <div class="hero-image">
+          <img
+            src="https://www.petplace.com/pet-adoption/media_1740aa105bbc41052f254093d1112ead04d221c37.jpeg?width=2000&format=webply&optimize=medium"
+            alt="Adopt a pet"
+          />
         </div>
-
-        <p class="hero-cta">Available pets updated in real time.</p>
+        <div class="hero-content">
+          <h1>Find Your New Best Friend</h1>
+          <p>Adopt a loving pet and give them a forever home.</p>
+          <div class="filter-buttons">
+            <button class="btn btn-primary active" data-filter="all">All Pets</button>
+            <button class="btn btn-outline" data-filter="dog">Dogs</button>
+            <button class="btn btn-outline" data-filter="cat">Cats</button>
+            <button class="btn btn-outline" data-filter="other">Others</button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="container">
-      <div class="search-bar">
-        <input type="text" id="searchInput" class="search-field" placeholder="Search by name or breed...">
-        <button id="clearBtn" class="btn-secondary">Clear</button>
+    <section class="container section" id="adminPanel">
+      <div class="section-header">
+        <h2>Admin: Create Pet</h2>
       </div>
-
-      <div class="pets-section">
-        <h2 class="section-title">Available Pets</h2>
-        <div class="pets-grid" id="petsGrid"></div>
-        <div id="emptyState" class="empty-state" style="display:none;">
-          <p>No pets found matching your criteria.</p>
+      <form id="createPetForm" class="form grid-form">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="petName" required />
         </div>
+        <div class="form-group">
+          <label>Species</label>
+          <select id="petSpecies" required>
+            <option value="">Select</option>
+            <option value="dog">Dog</option>
+            <option value="cat">Cat</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Breed</label>
+          <input type="text" id="petBreed" required />
+        </div>
+        <div class="form-group">
+          <label>Age</label>
+          <input type="number" id="petAge" min="0" step="0.1" required />
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="url" id="petImageUrl" required />
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="petStatus">
+            <option value="available">Available</option>
+            <option value="adopted">Adopted</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Description</label>
+          <textarea id="petDescription" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Pet</button>
+        <div id="createMessage" class="message"></div>
+      </form>
+    </section>
+
+    <section class="container section">
+      <div class="section-header">
+        <h2>Available Pets</h2>
+      </div>
+      <div id="loginPrompt" class="message"></div>
+      <div id="petsGrid" class="pets-grid"></div>
+      <div id="emptyState" class="empty-state">No pets found.</div>
+    </section>
+
+    <section class="container section">
+      <div class="section-header">
+        <h2>Our Location</h2>
+      </div>
+      <iframe
+        class="map-embed"
+        src="https://www.google.com/maps?q=Dinmukhamed+Kunaeva+12/2+Astana&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Pet Adoption Location"
+      ></iframe>
+      <div class="map-info">
+        <p class="address">
+          <strong>Address:</strong> Dinmukhamed Kunaeva 12/2, Astana
+        </p>
+        <a
+          href="https://www.google.com/maps/search/?api=1&query=Dinmukhamed+Kunaeva+12/2+Astana"
+          target="_blank"
+          rel="noopener"
+          class="map-button"
+        >
+          Open in Google Maps
+        </a>
       </div>
     </section>
   </main>
 
-  <div id="petModal" class="modal">
-    <div class="modal-box">
-      <button class="modal-close" id="modalCloseBtn">&times;</button>
-      <div class="modal-layout">
-        <div class="modal-image-section">
-          <img id="modalPetImage" src="" alt="Pet" class="modal-image">
-          <span id="statusBadge" class="status-badge"></span>
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Pet</h3>
+      <form id="editPetForm" class="form">
+        <input type="hidden" id="editPetId" />
+        <label>Name</label>
+        <input type="text" id="editName" required />
+        <label>Species</label>
+        <select id="editSpecies" required>
+          <option value="dog">Dog</option>
+          <option value="cat">Cat</option>
+          <option value="other">Other</option>
+        </select>
+        <label>Breed</label>
+        <input type="text" id="editBreed" required />
+        <label>Age</label>
+        <input type="number" id="editAge" min="0" step="0.1" required />
+        <label>Image URL</label>
+        <input type="url" id="editImageUrl" required />
+        <label>Status</label>
+        <select id="editStatus">
+          <option value="available">Available</option>
+          <option value="adopted">Adopted</option>
+        </select>
+        <label>Description</label>
+        <textarea id="editDescription" rows="3"></textarea>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" id="editCancel" class="btn btn-outline">Cancel</button>
         </div>
-        <div class="modal-info-section">
-          <h2 id="modalPetName" class="modal-title"></h2>
-          <div class="pet-details">
-            <div class="detail-row">
-              <span class="detail-label">Species</span>
-              <span id="modalPetType" class="detail-value"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Breed</span>
-              <span id="modalPetBreed" class="detail-value"></span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Age</span>
-              <span id="modalPetAge" class="detail-value"></span>
-            </div>
-          </div>
-          <p class="modal-description" id="modalPetDescription"></p>
-          <div class="adopt-section">
-            <button id="adoptBtn" class="btn-primary">Adopt This Pet</button>
-            <div id="adoptMessage" class="message"></div>
-          </div>
-        </div>
-      </div>
+        <div id="editMessage" class="message"></div>
+      </form>
     </div>
   </div>
 
   <footer class="footer">
-    <p>&copy; 2025 Pet Adoption System.</p>
+    <div class="container footer-content">
+      <div class="footer-text">
+        <p>
+          Pet Adoption System provides information about pet adoption opportunities in the Republic of Kazakhstan.
+          <br />
+          All information on this platform is provided for informational purposes only.
+        </p>
+        <p>
+          Adoption availability depends on shelters, volunteers, and partner organizations.
+          <br />
+          The platform does not guarantee availability, condition, or health status of animals.
+        </p>
+        <p>
+          All adoption decisions are made directly between users and shelters.
+          <br />
+          Local laws and regulations of the Republic of Kazakhstan apply.
+        </p>
+      </div>
+      <div class="partners" aria-label="Our Partnerships">
+        <h3>Our Partnerships</h3>
+        <div class="partner-logos">
+          <img
+            src="https://lms.astanait.edu.kz/pluginfile.php/1/core_admin/logo/0x200/1759344969/Astana%20IT%20University%20%284%29.png"
+            alt="Astana IT University"
+          />
+          <img
+            src="https://www.gov.kz/uploads/2023/2/3/8545ecac24959d0743986120a57e8fee_original.1402108.png"
+            alt="Akimat of the city of Astana"
+          />
+          <img
+            src="https://framerusercontent.com/images/tXX47nIDpfWdyumwRLTnBucnlw.png?scale-down-to=512"
+            alt="Astana Hub"
+          />
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script src="main.js"></script>

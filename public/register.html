@@ -1,63 +1,78 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register - Pet Adoption System</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="navbar">
-    <div class="navbar-inner">
-      <div class="navbar-brand">Pet Adoption</div>
-      <nav class="navbar-menu">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="login.html" class="nav-link">Login</a>
+    <div class="container nav-inner">
+      <div class="brand">Pet Adoption</div>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
       </nav>
     </div>
   </header>
 
-  <main class="container form-page">
-    <div class="form-container">
-      <h2>Create Your Account</h2>
-      <p class="subtitle">Join and find your perfect companion.</p>
-
-      <form id="registerForm" class="auth-form">
-        <div class="form-group">
-          <label for="name">Full Name</label>
-          <input id="name" type="text" placeholder="John Doe" required minlength="2" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input id="email" type="email" placeholder="your@email.com" required class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input id="password" type="password" placeholder="********" required minlength="6" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label for="confirmPassword">Confirm Password</label>
-          <input id="confirmPassword" type="password" placeholder="********" required minlength="6" class="form-input">
-        </div>
-
-        <button type="submit" class="btn-primary btn-block">Create Account</button>
-
-        <div class="form-divider">
-          <span>Already have an account?</span>
-        </div>
-
-        <a href="login.html" class="btn-secondary btn-block">Sign In</a>
+  <main class="container section">
+    <div class="card form-card">
+      <h2>Create Account</h2>
+      <p class="muted">Join and find your perfect companion.</p>
+      <form id="registerForm" class="form">
+        <label>Name</label>
+        <input type="text" id="registerName" required minlength="2" />
+        <label>Email</label>
+        <input type="email" id="registerEmail" required />
+        <label>Password</label>
+        <input type="password" id="registerPassword" required minlength="6" />
+        <label>Confirm Password</label>
+        <input type="password" id="registerConfirm" required minlength="6" />
+        <button type="submit" class="btn btn-primary">Create Account</button>
+        <div id="registerMessage" class="message"></div>
       </form>
-
-      <div id="registerMessage" class="message"></div>
     </div>
   </main>
 
   <footer class="footer">
-    <p>&copy; 2025 Pet Adoption System.</p>
+    <div class="container footer-content">
+      <div class="footer-text">
+        <p>
+          Pet Adoption System provides information about pet adoption opportunities in the Republic of Kazakhstan.
+          <br />
+          All information on this platform is provided for informational purposes only.
+        </p>
+        <p>
+          Adoption availability depends on shelters, volunteers, and partner organizations.
+          <br />
+          The platform does not guarantee availability, condition, or health status of animals.
+        </p>
+        <p>
+          All adoption decisions are made directly between users and shelters.
+          <br />
+          Local laws and regulations of the Republic of Kazakhstan apply.
+        </p>
+      </div>
+      <div class="partners" aria-label="Our Partnerships">
+        <h3>Our Partnerships</h3>
+        <div class="partner-logos">
+          <img
+            src="https://lms.astanait.edu.kz/pluginfile.php/1/core_admin/logo/0x200/1759344969/Astana%20IT%20University%20%284%29.png"
+            alt="Astana IT University"
+          />
+          <img
+            src="https://www.gov.kz/uploads/2023/2/3/8545ecac24959d0743986120a57e8fee_original.1402108.png"
+            alt="Akimat of the city of Astana"
+          />
+          <img
+            src="https://framerusercontent.com/images/tXX47nIDpfWdyumwRLTnBucnlw.png?scale-down-to=512"
+            alt="Astana Hub"
+          />
+        </div>
+      </div>
+    </div>
   </footer>
 
   <script src="main.js"></script>

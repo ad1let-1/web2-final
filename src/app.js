@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/pets", petRoutes);
+app.use("/api/resource", petRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

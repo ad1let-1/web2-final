@@ -9,6 +9,7 @@ const petSchema = new mongoose.Schema(
     status: { type: String, enum: ["available", "adopted"], default: "available" },
     imageUrl: { type: String, required: true, trim: true },
     description: { type: String, trim: true, maxlength: 500 },
+    adoptedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   },
   { timestamps: true }
 );
